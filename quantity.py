@@ -15,7 +15,7 @@ class Quantity:
         self.last_q = 0
 
     def init_row(self):
-        return np.random.rand(self.size * self.size)
+        return np.random.rand(self.size * self.size) * 0.1
         #center = np.zeros((2, 2))
         #pad = (self.size - 2) // 2
         #q = np.pad(center, [(pad, pad), (pad, pad)], 'constant', constant_values=self.init)
