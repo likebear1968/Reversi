@@ -16,11 +16,13 @@ class Board:
         pad = (self.size - 2) // 2
         self.board = np.pad(center, [(pad, pad), (pad, pad)], 'constant')
 
-    def count(self, color):
-        return np.count_nonzero(self.board == color)
+    def count(self, color, board=None):
+        if board is None: board = self.board
+        return np.count_nonzero(board == color)
 
-    def get_state(self):
-        return ''.join(map(str, self.board.flatten()))
+    def get_state(self, board=None):
+        if board is None: board = self.board
+        return ''.join(map(str, board.flatten()))
 
     def get_vector(self, y, x, direction):
         if direction == 0:  #左上
@@ -41,13 +43,14 @@ class Board:
             return [(i, j) for j, i in zip(range(x, self.size), range(y, self.size)) if j != x and i != y]
         return []
 
-    def check_vector(self, color, vector):
+    def check_vector(self, color, vector, board=None):
+        if board is None: board = self.board
         grids = []
         flg = False
         for i, grid in enumerate(vector):
-            if self.board[grid] == Board.BLANK:
+            if board[grid] == Board.BLANK:
                 return []
-            elif self.board[grid] == color:
+            elif board[grid] == color:
                 flg = True
                 break
             grids.append(grid)
@@ -58,15 +61,16 @@ class Board:
     def check_arround(self, pboard, y, x):
         return pboard[y: y + 3, x: x + 3][np.array(self.mask).reshape(3, -1)]
 
-    def availables(self, color):
-        blank = np.where(self.board == Board.BLANK)
-        pboard = np.pad(self.board, [(1, 1), (1, 1)], 'constant')
+    def availables(self, color, board=None):
+        if board is None: board = self.board
+        blank = np.where(board == Board.BLANK)
+        pboard = np.pad(board, [(1, 1), (1, 1)], 'constant')
         #accept = []
         accept = {}
         for y, x in zip(blank[0], blank[1]):
             for i, v in enumerate(self.check_arround(pboard, y, x)):
                 if v not in [Board.BLANK, color]:
-                    grids = self.check_vector(color, self.get_vector(y, x, i))
+                    grids = self.check_vector(color, self.get_vector(y, x, i), board)
                     if len(grids) > 0:
                         #grids.insert(0, (y, x))
                         #accept.append(grids)
@@ -76,7 +80,8 @@ class Board:
                             accept[(y, x)] = grids
         return accept
 
-    def flip(self, color, grids):
+    def flip(self, color, grids, board=None):
+        if board is None: board = self.board
         for grid in grids:
-            self.board[grid] = color
-        return self.count(color)
+            board[grid] = color
+        return self.count(color, board)
